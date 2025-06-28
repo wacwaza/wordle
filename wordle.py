@@ -1,15 +1,12 @@
 from colorama import Fore, init
-import time
-import random
-
+import time, random
 init(autoreset=True)
 
 def main():
-    category = rules()
+    rules()
     global wordle
-    wordle = choose_wordle(category)
+    wordle = choose_wordle().rstrip().upper()
     attempts = 0
-    print(wordle)
     while attempts < 6:
         guess = input("Word: ").upper()
         if len(guess) != 5:
@@ -17,13 +14,24 @@ def main():
             continue
         else:
             if guess == wordle:
-                print("You guessed the word!", Fore.GREEN + "{wordle.upper()}")
+                for a in wordle:
+                    print(Fore.GREEN + f" {a}", end="")
+                    time.sleep(0.5)
+                print() 
+                print("You guessed the word!")
                 break
             else:
-                for a in range(5):
-                    print(f" {check_letter(guess, a)}", end="")
-                attempts += 1
-                print()
+                if check_valid_guess(guess):
+                    for a in range(5):
+                        print(f" {check_letter(guess, a)}", end="")
+                        time.sleep(0.5)
+                    attempts += 1
+                    print()
+                    if attempts == 6:
+                        print()
+                        print("You lost, the word was", Fore.GREEN + wordle)
+                else:
+                    print("Not a valid word!")
 
 def rules():
     print("Welcome to WORDLE in python!")
@@ -32,7 +40,7 @@ def rules():
     time.sleep(3)
     print(" • Try to guess the word in 6 tries")
     time.sleep(0.5)
-    print(" • All guesses should be five-letter words")
+    print(" • All guesses should be valid five-letter words")
     time.sleep(0.5)
     print(" • All of your inputs are case-insensitive")
     time.sleep(0.5)
@@ -43,26 +51,22 @@ def rules():
     print("   ↳ A", Fore.YELLOW + "YELLOW", Fore.RESET + "letter means it is in the word, but in the wrong spot")
     time.sleep(0.5)
     print("   ↳ A", Fore.GREEN + "GREEN", Fore.RESET + "letter means both the letter and spot are correct")
-    time.sleep(3)
-    global categories
-    categories = ["FRUITS", "COLORS", "ANIMALS", "RANDOM"]
-    while True:
-        print("Categories: FRUITS, COLORS, ANIMALS, RANDOM")
-        category = input("Choose a category: ").strip()
-        if category.upper() in categories:
-            return category.upper()
-        else:
-            print("Invalid category")
-            time.sleep(1)
-            continue
+    time.sleep(0.5)
 
-def choose_wordle(category):
-    if category == "RANDOM":
-        category = random.choice(categories)
-    with open(category + ".txt", "r") as file:
+def choose_wordle():
+    with open("possible-answers.txt", "r") as file:
         lines = file.readlines()
-        wordle = random.choice(lines)
+    wordle = random.choice(lines)
     return wordle
+
+def check_valid_guess(guess):
+    with open("valid-wordle-words.txt", "r") as file:
+        lines = file.readlines()    
+        for line in lines:
+            if guess.lower() == line.rstrip():
+                return True
+            else:
+                continue
 
 def check_letter(guess, a):
     if guess[a] == wordle[a]:
