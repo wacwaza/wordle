@@ -1,13 +1,21 @@
 from colorama import Fore, init
+from instructions import options 
 import time, random
 init(autoreset=True)
 
 def main():
-    rules()
+    number, N = options()
+    if number == "1":
+        original_wordle(att=N)
+    elif number == "2":
+        txt = choose_txt()
+        original_wordle(N, txt)
+
+def original_wordle(att=6, txt="possible-answers.txt"):
     global wordle
-    wordle = choose_wordle().rstrip().upper()
+    wordle = choose_wordle(txt).rstrip().upper()
     attempts = 0
-    while attempts < 6:
+    while attempts < att:
         guess = input("Word: ").upper()
         if len(guess) != 5:
             print("Not a five-letter word! Try again.")
@@ -27,37 +35,31 @@ def main():
                         time.sleep(0.5)
                     attempts += 1
                     print()
-                    if attempts == 6:
-                        print()
+                    if attempts == att:
                         print("You lost, the word was", Fore.GREEN + wordle)
                 else:
                     print("Not a valid word!")
 
-def rules():
-    print("Welcome to WORDLE in python!")
-    time.sleep(3)
-    print("HOW TO PLAY")
-    time.sleep(3)
-    print(" • Try to guess the word in 6 tries")
-    time.sleep(0.5)
-    print(" • All guesses should be valid five-letter words")
-    time.sleep(0.5)
-    print(" • All of your inputs are case-insensitive")
-    time.sleep(0.5)
-    print(" • The color of the letters will change as follows")
-    time.sleep(0.5)
-    print("   ↳ A", Fore.WHITE + "WHITE", Fore.RESET + "letter means it is not in the word in any spot")
-    time.sleep(0.5)
-    print("   ↳ A", Fore.YELLOW + "YELLOW", Fore.RESET + "letter means it is in the word, but in the wrong spot")
-    time.sleep(0.5)
-    print("   ↳ A", Fore.GREEN + "GREEN", Fore.RESET + "letter means both the letter and spot are correct")
-    time.sleep(0.5)
-
-def choose_wordle():
-    with open("possible-answers.txt", "r") as file:
+def choose_wordle(txt):
+    with open(txt, "r") as file:
         lines = file.readlines()
     wordle = random.choice(lines)
     return wordle
+
+def choose_txt():
+    lists = ["FRUITS-VEGGIES", "ANIMALS", "COUNTRIES"]
+    while True:
+        print("Categories: Fruits-Veggies, Animals, Countries")
+        x = input("Choose a category: ").upper()
+        if x in lists:
+            if x == "ANIMALS":
+                return "animals-list.txt"
+            elif x == "FRUITS-VEGGIES":
+                return "fruit-veggies-list.txt"
+            elif x == "COUNTRIES":
+                return "countries-list.txt"
+        else:
+            continue
 
 def check_valid_guess(guess):
     with open("valid-wordle-words.txt", "r") as file:
