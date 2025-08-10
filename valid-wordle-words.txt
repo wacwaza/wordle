@@ -14879,3 +14879,5 @@ spain
 sudan
 syria
 tonga
+equus
+felis
